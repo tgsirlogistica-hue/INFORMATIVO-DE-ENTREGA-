@@ -79,7 +79,7 @@ table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;back
 </section>
 <section class="card full">
 <h2 class="title">Novo horário de atendimento / entrega</h2>
-<div class="row"><div class="field"><label for="start">Início do atendimento *</label><input type="time" id="start"></div><div class="field"><label for="end">Fim do atendimento *</label><input type="time" id="end"></div></div>
+<div class="row"><div class="field"><label for="start">Início do atendimento *</label><input type="text" id="start" inputmode="numeric" maxlength="5" placeholder="Ex.: 08:00" autocomplete="off"></div><div class="field"><label for="end">Fim do atendimento *</label><input type="text" id="end" inputmode="numeric" maxlength="5" placeholder="Ex.: 12:30" autocomplete="off"></div></div>
 <div class="field"><label for="reason">Justificativa / motivo do período de atendimento *</label><textarea id="reason" placeholder="Ex.: Cliente recebe mercadoria somente no período da manhã devido ao funcionamento do depósito."></textarea></div>
 <div class="field"><label for="responsible">Responsável pelo cadastro</label><input id="responsible" placeholder="Nome de quem realizou o cadastro"></div>
 <div class="actions"><button class="primary" onclick="saveRecord()">Salvar horário</button><button class="secondary" onclick="clearForm(false)">Limpar formulário</button></div>
@@ -100,6 +100,9 @@ function maskCode(v){const d=v.replace(/\D/g,'').slice(0,8);return d.length>4?d.
 document.getElementById('searchCode').addEventListener('keydown',e=>{if(e.key==='Enter')searchClient()});
 function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function validCode(c){return /^\d{4}-\d{4}$/.test(c)}
+function maskTime(v){const d=String(v).replace(/\D/g,'').slice(0,4);return d.length>2?d.slice(0,2)+':'+d.slice(2):d}
+function validTime(v){if(!/^\d{2}:\d{2}$/.test(v))return false;const [h,m]=v.split(':').map(Number);return h>=0&&h<=23&&m>=0&&m<=59}
+['start','end'].forEach(id=>document.getElementById(id).addEventListener('input',e=>e.target.value=maskTime(e.target.value)));
 function setStatus(id,msg,type,keep=false){const e=document.getElementById(id);e.className='status '+type;e.textContent=msg;if(!keep)setTimeout(()=>{if(e.textContent===msg)e.className='status'},5000)}
 function setBusy(b){document.querySelectorAll('button').forEach(x=>x.disabled=b);document.body.style.cursor=b?'wait':''}
 async function searchClient(codeOverride){
@@ -124,6 +127,7 @@ async function searchClient(codeOverride){
 async function saveRecord(){
  const code=document.getElementById('code').value.trim(),fantasy=document.getElementById('fantasy').value.trim(),legal=document.getElementById('legal').value.trim(),start=document.getElementById('start').value,end=document.getElementById('end').value,reason=document.getElementById('reason').value.trim(),responsible=document.getElementById('responsible').value.trim();
  if(!validCode(code)||!fantasy||!legal||!start||!end||!reason){setStatus('formStatus','Preencha todos os campos obrigatórios (*) e confira o código do cliente.','err');return}
+ if(!validTime(start)||!validTime(end)){setStatus('formStatus','Digite os horários manualmente no formato HH:MM. Ex.: 08:00 e 12:30.','err');return}
  if(end<=start){setStatus('formStatus','O horário final deve ser posterior ao horário inicial.','err');return}
  setStatus('formStatus','Salvando na planilha...','ok',true); setBusy(true);
  try{
