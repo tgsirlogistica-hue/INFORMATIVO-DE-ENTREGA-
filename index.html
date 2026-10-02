@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horário de Atendimento - Clientes</title>
+<style>
+:root{--red:#c8102e;--red2:#9e0b24;--dark:#20242a;--muted:#6b7280;--line:#e5e7eb;--bg:#f3f4f6;--green:#16803c;--blue:#1769aa}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#222}
+header{background:linear-gradient(135deg,var(--red),var(--red2));color:white;padding:24px 18px;box-shadow:0 2px 8px #0002}
+.header-inner{max-width:1100px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand h1{margin:0;font-size:24px}.brand p{margin:5px 0 0;opacity:.9;font-size:14px}.badge{background:#fff2;padding:8px 12px;border:1px solid #fff5;border-radius:999px;font-size:12px}
+main{max-width:1100px;margin:24px auto;padding:0 14px 40px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 12px #0000000d;border:1px solid #e8e8e8}.card.full{grid-column:1/-1}.title{font-weight:700;font-size:17px;margin:0 0 16px;padding-bottom:10px;border-bottom:2px solid #f0f0f0}.field{margin-bottom:14px}label{display:block;font-weight:700;font-size:13px;margin-bottom:6px;color:#383d44}input,textarea{width:100%;border:1px solid #ccd1d7;border-radius:8px;padding:11px 12px;font-size:15px;outline:none;background:white}input:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px #c8102e18}textarea{min-height:90px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}button{border:0;border-radius:8px;padding:11px 16px;font-weight:700;cursor:pointer;font-size:14px}.primary{background:var(--red);color:white}.primary:hover{background:var(--red2)}.secondary{background:#eceff2;color:#333}.danger{background:#fff0f1;color:var(--red);border:1px solid #f1c3cb}.search-wrap{display:flex;gap:8px}.search-wrap input{flex:1}.status{display:none;margin-top:12px;padding:11px;border-radius:8px;font-size:13px}.status.ok{display:block;background:#eaf7ee;color:#146c35}.status.err{display:block;background:#fff0f0;color:#a61b1b}.client-summary{display:none;background:#fafafa;border:1px solid var(--line);border-left:4px solid var(--red);padding:14px;border-radius:8px;margin-top:14px}.client-summary strong{display:block;margin-bottom:4px}.small{font-size:12px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:13px}th{text-align:left;background:#f6f7f8;padding:10px;border-bottom:2px solid #ddd}td{padding:10px;border-bottom:1px solid #eee;vertical-align:top}.empty{text-align:center;color:#777;padding:30px 10px}.pill{display:inline-block;padding:5px 8px;background:#eef5fb;color:#185a8d;border-radius:999px;font-weight:700;white-space:nowrap}.history-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.history-head .title{margin:0;flex:1}.counter{font-size:12px;background:#eee;padding:6px 9px;border-radius:999px}.note{margin-top:18px;font-size:12px;color:#666;background:#fff8df;border:1px solid #f0df9e;padding:10px;border-radius:8px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.card.full{grid-column:auto}.row{grid-template-columns:1fr}.header-inner{align-items:flex-start;flex-direction:column}.search-wrap{flex-direction:column}table{min-width:700px}.table-scroll{overflow-x:auto}.brand h1{font-size:20px}}
+</style>
+</head>
+<body>
+<header><div class="header-inner"><div class="brand"><h1>Horário de Atendimento aos Clientes</h1><p>Cadastro e histórico de períodos para recebimento de entregas</p></div><div class="badge">CONTROLE DE ENTREGA</div></div></header>
+<main>
+<div class="grid">
+<section class="card">
+<h2 class="title">Consultar cliente</h2>
+<div class="field"><label>Código do cliente</label><div class="search-wrap"><input id="searchCode" inputmode="numeric" maxlength="9" placeholder="0000-0000"><button class="primary" onclick="searchClient()">Consultar</button></div></div>
+<div class="small">Digite o código no padrão 0000-0000. O histórico cadastrado será exibido automaticamente.</div>
+<div id="clientSummary" class="client-summary"></div>
+<div id="searchStatus" class="status"></div>
+</section>
+<section class="card">
+<h2 class="title">Dados do cliente</h2>
+<div class="field"><label for="code">Código do cliente *</label><input id="code" inputmode="numeric" maxlength="9" placeholder="0000-0000"></div>
+<div class="field"><label for="fantasy">Nome Fantasia *</label><input id="fantasy" placeholder="Ex.: Mercado São José"></div>
+<div class="field"><label for="legal">Razão Social *</label><input id="legal" placeholder="Ex.: Mercado São José LTDA"></div>
+</section>
+<section class="card full">
+<h2 class="title">Novo horário de atendimento / entrega</h2>
+<div class="row"><div class="field"><label for="start">Início do atendimento *</label><input type="time" id="start"></div><div class="field"><label for="end">Fim do atendimento *</label><input type="time" id="end"></div></div>
+<div class="field"><label for="reason">Justificativa / motivo do período de atendimento *</label><textarea id="reason" placeholder="Ex.: Cliente recebe mercadoria somente no período da manhã devido ao funcionamento do depósito."></textarea></div>
+<div class="field"><label for="responsible">Responsável pelo cadastro</label><input id="responsible" placeholder="Nome de quem realizou o cadastro"></div>
+<div class="actions"><button class="primary" onclick="saveRecord()">Salvar horário</button><button class="secondary" onclick="clearForm(false)">Limpar formulário</button></div>
+<div id="formStatus" class="status"></div>
+</section>
+<section class="card full">
+<div class="history-head"><h2 class="title">Histórico do cliente</h2><span id="counter" class="counter">0 registros</span></div>
+<div class="table-scroll"><table><thead><tr><th>Data do cadastro</th><th>Código</th><th>Cliente</th><th>Período</th><th>Justificativa</th><th>Responsável</th></tr></thead><tbody id="historyBody"><tr><td colspan="6" class="empty">Consulte um cliente ou faça o primeiro cadastro.</td></tr></tbody></table></div>
+</section>
+</div>
+<div class="note"><strong>Base online ativa:</strong> os registros desta versão são gravados e consultados na planilha Google Sheets do Informativo de Atendimento.</div>
+</main>
+<script>
+const API_URL='https://script.google.com/macros/s/AKfycby-8Cn5lKywaJ86SOhV-ZMaOpdNPAH9qdjx-R71YOOMkDecgQW59F8-zptq_zt2uLFy/exec';
+let selectedCode='';
+function maskCode(v){const d=v.replace(/\D/g,'').slice(0,8);return d.length>4?d.slice(0,4)+'-'+d.slice(4):d}
+['code','searchCode'].forEach(id=>document.getElementById(id).addEventListener('input',e=>e.target.value=maskCode(e.target.value)));
+document.getElementById('searchCode').addEventListener('keydown',e=>{if(e.key==='Enter')searchClient()});
+function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function validCode(c){return /^\d{4}-\d{4}$/.test(c)}
+function setStatus(id,msg,type,keep=false){const e=document.getElementById(id);e.className='status '+type;e.textContent=msg;if(!keep)setTimeout(()=>{if(e.textContent===msg)e.className='status'},5000)}
+function setBusy(b){document.querySelectorAll('button').forEach(x=>x.disabled=b);document.body.style.cursor=b?'wait':''}
+async function searchClient(codeOverride){
+ const code=(codeOverride||document.getElementById('searchCode').value).trim();
+ if(!validCode(code)){setStatus('searchStatus','Informe um código válido no padrão 0000-0000.','err');return}
+ selectedCode=code; document.getElementById('searchCode').value=code; setStatus('searchStatus','Consultando histórico...','ok',true); setBusy(true);
+ try{
+   const r=await fetch(API_URL+'?acao=buscar&codigo='+encodeURIComponent(code),{method:'GET',cache:'no-store'});
+   if(!r.ok) throw new Error('Falha na consulta ('+r.status+').');
+   const data=await r.json();
+   if(!data.sucesso) throw new Error(data.mensagem||'Não foi possível consultar.');
+   if(data.encontrado){
+     document.getElementById('code').value=data.codigo||code; document.getElementById('fantasy').value=data.nomeFantasia||''; document.getElementById('legal').value=data.razaoSocial||'';
+     const rows=(data.historico||[]).map(x=>({date:x.data,code:x.codigo,fantasy:x.nomeFantasia,legal:x.razaoSocial,start:x.inicio,end:x.fim,reason:x.justificativa,responsible:x.responsavel}));
+     const s=document.getElementById('clientSummary'); s.style.display='block'; s.innerHTML=`<strong>${esc(data.nomeFantasia||'')}</strong><div>${esc(data.razaoSocial||'')}</div><div class="small">Código: ${esc(data.codigo||code)} • ${rows.length} registro(s) encontrado(s)</div>`;
+     render(rows); setStatus('searchStatus','Cliente localizado. Histórico carregado.','ok');
+   }else{
+     document.getElementById('code').value=code; document.getElementById('fantasy').value=''; document.getElementById('legal').value=''; document.getElementById('clientSummary').style.display='none'; render([]); setStatus('searchStatus','Código ainda não possui histórico. Preencha os dados para realizar o primeiro cadastro.','err');
+   }
+ }catch(err){setStatus('searchStatus','Erro ao consultar: '+err.message,'err',true)}finally{setBusy(false)}
+}
+async function saveRecord(){
+ const code=document.getElementById('code').value.trim(),fantasy=document.getElementById('fantasy').value.trim(),legal=document.getElementById('legal').value.trim(),start=document.getElementById('start').value,end=document.getElementById('end').value,reason=document.getElementById('reason').value.trim(),responsible=document.getElementById('responsible').value.trim();
+ if(!validCode(code)||!fantasy||!legal||!start||!end||!reason){setStatus('formStatus','Preencha todos os campos obrigatórios (*) e confira o código do cliente.','err');return}
+ if(end<=start){setStatus('formStatus','O horário final deve ser posterior ao horário inicial.','err');return}
+ setStatus('formStatus','Salvando na planilha...','ok',true); setBusy(true);
+ try{
+   const payload={acao:'salvar',codigo:code,nomeFantasia:fantasy,razaoSocial:legal,inicio:start,fim:end,justificativa:reason,responsavel:responsible};
+   const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+   if(!r.ok) throw new Error('Falha ao salvar ('+r.status+').');
+   const data=await r.json(); if(!data.sucesso) throw new Error(data.mensagem||'Não foi possível salvar.');
+   selectedCode=code; document.getElementById('searchCode').value=code; ['start','end','reason'].forEach(x=>document.getElementById(x).value='');
+   setStatus('formStatus','Horário salvo com sucesso na planilha.','ok'); await searchClient(code);
+ }catch(err){setStatus('formStatus','Erro ao salvar: '+err.message,'err',true)}finally{setBusy(false)}
+}
+function render(rows){const body=document.getElementById('historyBody');document.getElementById('counter').textContent=`${rows.length} registro${rows.length===1?'':'s'}`;if(!rows.length){body.innerHTML='<tr><td colspan="6" class="empty">Nenhum registro encontrado para este cliente.</td></tr>';return}body.innerHTML=rows.map(r=>`<tr><td>${esc(r.date||'')}</td><td><strong>${esc(r.code||'')}</strong></td><td><strong>${esc(r.fantasy||'')}</strong><br><span class="small">${esc(r.legal||'')}</span></td><td><span class="pill">${esc(r.start||'')} às ${esc(r.end||'')}</span></td><td>${esc(r.reason||'')}</td><td>${esc(r.responsible||'-')}</td></tr>`).join('')}
+function clearForm(clearClient=true){if(clearClient){['code','fantasy','legal'].forEach(x=>document.getElementById(x).value='')}['start','end','reason','responsible'].forEach(x=>document.getElementById(x).value='');document.getElementById('formStatus').className='status'}
+</script>
+</body>
+</html>
